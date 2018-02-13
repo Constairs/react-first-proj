@@ -1,0 +1,16 @@
+{
+  "name": "first-react-project",
+  "version": "1.0.0",
+  "description": "React tutuorial project",
+  "main": "index.html",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "author": "constairs",
+  "license": "MIT",
+  "devDependencies": {
+    "express": "^4.16.2",
+    "react": "^16.2.0",
+    "react-dom": "^16.2.0"
+  }
+}

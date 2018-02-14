@@ -25,42 +25,60 @@ let myNews = [
 // );
 
 let News = React.createClass({
+    propTypes: {
+        data: React.PropTypes.array.isRequired
+    },
     render: function () {
         let data = this.props.data;
-        let newsTemplate = data.map((item, index) => {
-            return (
-                <div key={index}>
-                    <p className="news-author">{item.author}:</p>
-                    <p className="news-text">{item.text}</p>
-                </div>
-            )
-        });
+        let newsTemplate;
+        if(data.length > 0) {
+            newsTemplate = data.map( function (item, index) {
+                return (
+                    <div key={index}>
+                        <Article data={item} />
+                    </div>
+                )
+            });
+        } else {
+            newsTemplate = <p>К сожалению новостей нет</p>
+        }
 
         return (
             <div className="news">
                 {newsTemplate}
+                <strong className={'news-counter ' + (data.length > 0 ? '':'none') }>Всего новостей: {data.length}</strong>
             </div>
         );
     }
 });
 
-let Comments = React.createClass({
+let Article = React.createClass({
+    propTypes: {
+      data: React.PropTypes.shape({
+        author: React.PropTypes.string.isRequired,
+          text: React.PropTypes.string.isRequired
+      })
+    },
     render: function () {
+        let author = this.props.data.author,
+            text = this.props.data.text;
         return (
-            <div className="comments">
-                Комментариев пока нет.
+            <div className="article">
+                <p className="news-author">{author}:</p>
+                <p className="news-text">{text}</p>
             </div>
         );
     }
 });
+
 
 let App = React.createClass({
     render: function () {
         return (
             <div className="app">
-                App component
+                <h3>Новости</h3>
                 <News data={myNews} /> {/*add data prop*/}
-                <Comments />
+
             </div>
         );
     }

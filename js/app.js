@@ -31,6 +31,15 @@ let News = React.createClass({
     propTypes: {
         data: React.PropTypes.array.isRequired
     },
+    getInitialState: function () {
+        return {
+            counter: 0,
+        };
+    },
+    counterClick: function(e) {
+      e.preventDefault();
+      this.setState({counter: ++this.state.counter});
+    },
     render: function () {
         let data = this.props.data;
         let newsTemplate;
@@ -46,10 +55,12 @@ let News = React.createClass({
             newsTemplate = <p>К сожалению новостей нет</p>
         }
 
+
+
         return (
             <div className="news">
                 {newsTemplate}
-                <strong className={'news-counter ' + (data.length > 0 ? '':'none') }>Всего новостей: {data.length}</strong>
+                <strong onClick={this.counterClick} className={'news-counter ' + (data.length > 0 ? '':'none') }>Всего новостей: {data.length}</strong>
             </div>
         );
     }
@@ -78,6 +89,8 @@ let Article = React.createClass({
             bigText = this.props.data.bigText,
             visible = this.state.visible; // Считывем значение переменной из состояния компонента
 
+        console.log('render',this); //добавили console.log
+
         return (
             <div className="article">
                 <p className="news-author">{author}:</p>
@@ -104,7 +117,6 @@ let App = React.createClass({
             <div className="app">
                 <h3>Новости</h3>
                 <News data={myNews} /> {/*add data prop*/}
-
             </div>
         );
     }

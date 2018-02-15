@@ -31,15 +31,6 @@ let News = React.createClass({
     propTypes: {
         data: React.PropTypes.array.isRequired
     },
-    getInitialState: function () {
-        return {
-            counter: 0,
-        };
-    },
-    counterClick: function(e) {
-      e.preventDefault();
-      this.setState({counter: ++this.state.counter});
-    },
     render: function () {
         let data = this.props.data;
         let newsTemplate;
@@ -60,7 +51,7 @@ let News = React.createClass({
         return (
             <div className="news">
                 {newsTemplate}
-                <strong onClick={this.counterClick} className={'news-counter ' + (data.length > 0 ? '':'none') }>Всего новостей: {data.length}</strong>
+                <strong className={'news-counter ' + (data.length > 0 ? '':'none') }>Всего новостей: {data.length}</strong>
             </div>
         );
     }
@@ -89,8 +80,6 @@ let Article = React.createClass({
             bigText = this.props.data.bigText,
             visible = this.state.visible; // Считывем значение переменной из состояния компонента
 
-        console.log('render',this); //добавили console.log
-
         return (
             <div className="article">
                 <p className="news-author">{author}:</p>
@@ -110,12 +99,34 @@ let Article = React.createClass({
     }
 });
 
+let TestInput = React.createClass({
+    onClickHandler: function() {
+        console.log(this.refs);
+        alert(ReactDOM.findDOMNode(this.refs.myTestInput).value);
+    },
+   render: function() {
+       return (
+           <div>
+            <input
+               onChange={this.onChangeHandler}
+               className="test-input"
+               defaultValue=''
+               ref="myTestInput"
+               placeholder="Введите значение..."
+               type="text"
+            />
+            <button onClick={this.onClickHandler} ref="alertButton">Отправить</button>
+           </div>
+       );
+   } 
+});
 
 let App = React.createClass({
     render: function () {
         return (
             <div className="app">
                 <h3>Новости</h3>
+                <TestInput />
                 <News data={myNews} /> {/*add data prop*/}
             </div>
         );

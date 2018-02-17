@@ -1,4 +1,6 @@
-let photos = ['images/1.jpg','images/2.jpg', 'images/3.jpg', 'images/4.jpg'];
+'use strict';
+
+window.ee = new EventEmitter();
 
 let myNews = [
     {
@@ -18,57 +20,18 @@ let myNews = [
     }
 ];
 
-// ReactDOM.render(
-//     <App>
-//         <Photos photos=photos />
-//         <lastNews />
-//         <Comments />
-//     </App>,
-//     document.getElementById('root')
-// );
-
-let News = React.createClass({
-    propTypes: {
-        data: React.PropTypes.array.isRequired
-    },
-    render: function () {
-        let data = this.props.data;
-        let newsTemplate;
-        if(data.length > 0) {
-            newsTemplate = data.map( function (item, index) {
-                return (
-                    <div key={index}>
-                        <Article data={item} />
-                    </div>
-                )
-            });
-        } else {
-            newsTemplate = <p>К сожалению новостей нет</p>
-        }
-
-
-
-        return (
-            <div className="news">
-                {newsTemplate}
-                <strong className={'news-counter ' + (data.length > 0 ? '':'none') }>Всего новостей: {data.length}</strong>
-            </div>
-        );
-    }
-});
-
 let Article = React.createClass({
     propTypes: {
-      data: React.PropTypes.shape({
-        author: React.PropTypes.string.isRequired,
-          text: React.PropTypes.string.isRequired,
-          bigText: React.PropTypes.string.isRequired
-      })
+        data: React.PropTypes.shape({
+            author: React.PropTypes.string.isRequired,
+            text: React.PropTypes.string.isRequired,
+            bigText: React.PropTypes.string.isRequired
+        })
     },
     getInitialState: function () {
-      return {
-          visible: false
-      };
+        return {
+            visible: false
+        };
     },
     readmoreClick: function(e) {
         e.preventDefault();
@@ -99,6 +62,41 @@ let Article = React.createClass({
     }
 });
 
+let News = React.createClass({
+    propTypes: {
+        data: React.PropTypes.array.isRequired
+    },
+    getInitialState: function () {
+      return {
+          counter: 0
+      }
+    },
+    render: function () {
+        let data = this.props.data;
+        let newsTemplate;
+        if(data.length > 0) {
+            newsTemplate = data.map( function (item, index) {
+                return (
+                    <div key={index}>
+                        <Article data={item} />
+                    </div>
+                )
+            });
+        } else {
+            newsTemplate = <p>К сожалению новостей нет</p>
+        }
+
+
+
+        return (
+            <div className="news">
+                {newsTemplate}
+                <strong className={'news-counter ' + (data.length > 0 ? '':'none') }>Всего новостей: {data.length}</strong>
+            </div>
+        );
+    }
+});
+
 let Add = React.createClass({
     getInitialState: function() {
         return {
@@ -113,8 +111,20 @@ let Add = React.createClass({
     onBtnClickHandler: function(e) {
         e.preventDefault();
         let author = ReactDOM.findDOMNode(this.refs.author).value;
-        let text = ReactDOM.findDOMNode(this.refs.text).value;
-        alert(author + ': ' + text);
+        let textEl = ReactDOM.findDOMNode(this.refs.text);
+        let text = textEl.value;
+
+        let item = [{
+            author: author,
+            text: text,
+            bigText: '...'
+        }];
+
+        window.ee.emit('News.add', item)
+
+        textEl.value = '';
+        this.setState({textIsEmpty: true});
+
     },
     onFieldChange: function(fileName, e) {
         let fieldData = e.target.value.trim();
@@ -145,19 +155,35 @@ let Add = React.createClass({
                <label className="checkbox-label" htmlFor="rules">
                    Я согласен с правилами <input id="rules" type="checkbox" onChange={this.onCheckRuleClick} defaultChecked={false} ref="checkrule"/>
                </label>
-               <button className="add-btn" onClick={this.onBtnClickHandler} disabled={agreeNotChecked ||  authorIsEmpty || textIsEmpty} ref="alertButton">Отправить</button>
+               <button className="add-btn" onClick={this.onBtnClickHandler} disabled={agreeNotChecked ||  authorIsEmpty || textIsEmpty} ref="alertButton">Опубликовать новость</button>
            </form>
        );
    }
 });
 
 let App = React.createClass({
+    getInitialState: function() {
+      return {
+          news: myNews
+      }
+    },
+    componentDidMount: function() {
+        let self = this;
+        window.ee.addListener('News.add', function (item) {
+           let nextNews = item.concat(self.state.news);
+           self.setState({news: nextNews});
+        });
+    },
+    componentWillUnmount: function () {
+        window.ee.addListener('News.add');
+    },
     render: function () {
+        console.log('render');
         return (
             <div className="app">
                 <h3>Новости</h3>
                 <Add />
-                <News data={myNews} /> {/*add data prop*/}
+                <News data={this.state.news} />
             </div>
         );
     }
